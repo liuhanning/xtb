@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>小学错题本</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <h1 id="page-title">错题本</h1>
+      <button id="btn-back" class="btn-icon hidden">&#8592;</button>
+      <button id="btn-print" class="btn-icon hidden" title="打印错题">&#128424;</button>
+      <button id="btn-settings" class="btn-icon" title="设置">&#9881;</button>
+    </header>
+
+    <!-- Views -->
+    <main id="main-content">
+      <!-- List View -->
+      <section id="view-list" class="view">
+        <div class="search-bar">
+          <input type="text" id="search-input" placeholder="搜索题目...">
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn active" data-subject="all">全部</button>
+          <button class="filter-btn" data-subject="math">数学</button>
+          <button class="filter-btn" data-subject="chinese">语文</button>
+          <button class="filter-btn" data-subject="english">英语</button>
+          <button class="filter-btn" data-subject="other">其他</button>
+        </div>
+        <div class="toggle-bar">
+          <label class="toggle">
+            <input type="checkbox" id="toggle-mastered">
+            <span class="toggle-slider"></span>
+            <span class="toggle-label">显示已掌握</span>
+          </label>
+        </div>
+        <div id="question-list" class="question-list"></div>
+      </section>
+
+      <!-- Add/Edit View -->
+      <section id="view-add" class="view hidden">
+        <form id="question-form">
+          <div class="form-group">
+            <label for="form-subject">科目</label>
+            <select id="form-subject" required>
+              <option value="math">数学</option>
+              <option value="chinese">语文</option>
+              <option value="english">英语</option>
+              <option value="other">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="form-knowledge-point">知识点</label>
+            <input type="text" id="form-knowledge-point" list="knowledge-point-list" placeholder="如：分数加减法、古诗默写...">
+            <datalist id="knowledge-point-list"></datalist>
+          </div>
+          <div class="form-group">
+            <label for="form-error-type">错误类型</label>
+            <select id="form-error-type">
+              <option value="calculation">计算错误</option>
+              <option value="concept">概念不清</option>
+              <option value="careless">粗心大意</option>
+              <option value="understand">理解偏差</option>
+              <option value="knowledge">知识盲点</option>
+              <option value="other">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>题目图片</label>
+            <div class="image-upload-area" id="image-upload-area">
+              <input type="file" id="form-image" accept="image/*" capture="environment" hidden>
+              <button type="button" id="btn-camera" class="btn-secondary">拍照</button>
+              <button type="button" id="btn-gallery" class="btn-secondary">选图</button>
+              <button type="button" id="btn-analyze" class="btn-analyze hidden">智能识别</button>
+              <div id="analyze-status" class="analyze-status hidden"></div>
+              <img id="image-preview" class="hidden" alt="题目图片预览">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="form-question">题目</label>
+            <div class="input-with-voice">
+              <textarea id="form-question" rows="3" required placeholder="输入题目..."></textarea>
+              <button type="button" id="btn-voice" class="btn-voice" title="语音输入">&#127908;</button>
+            </div>
+            <div id="voice-status" class="voice-status hidden"></div>
+          </div>
+          <div class="form-group">
+            <label for="form-wrong">孩子的答案</label>
+            <textarea id="form-wrong" rows="2" placeholder="孩子写的答案..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="form-correct">正确答案</label>
+            <textarea id="form-correct" rows="2" placeholder="正确答案..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="form-note">备注</label>
+            <textarea id="form-note" rows="2" placeholder="错误原因等..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary">保存</button>
+        </form>
+      </section>
+
+      <!-- Detail View -->
+      <section id="view-detail" class="view hidden">
+        <div id="detail-content"></div>
+        <div class="detail-actions">
+          <button id="btn-edit" class="btn-secondary">编辑</button>
+          <button id="btn-toggle-master" class="btn-secondary">标记已掌握</button>
+          <button id="btn-delete" class="btn-danger">删除</button>
+        </div>
+      </section>
+
+      <!-- Print Preview View -->
+      <section id="view-print" class="view hidden">
+        <div class="print-options">
+          <div class="print-option-group">
+            <label><input type="checkbox" id="print-include-answers" checked> 包含答案</label>
+            <label><input type="checkbox" id="print-include-images" checked> 包含图片</label>
+            <label><input type="checkbox" id="print-include-wrong" checked> 包含错误答案</label>
+          </div>
+          <button id="btn-do-print" class="btn-primary">开始打印</button>
+        </div>
+        <div id="print-preview"></div>
+      </section>
+
+      <!-- Statistics View -->
+      <section id="view-stats" class="view hidden">
+        <div id="stats-content"></div>
+      </section>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>设置</h3>
+          <button id="btn-close-settings" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="settings-api-key">DashScope API Key</label>
+            <input type="password" id="settings-api-key" placeholder="sk-...">
+            <p class="settings-hint">用于智能识别功能，调用通义千问Qwen-VL模型分析错题图片。API Key 仅存储在本地浏览器中。</p>
+          </div>
+          <button id="btn-save-settings" class="btn-primary">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAB -->
+    <button id="btn-add" class="fab">+</button>
+
+    <!-- Bottom Tab Bar -->
+    <nav class="tab-bar">
+      <button class="tab-item active" data-view="list">
+        <span class="tab-icon">&#128203;</span>
+        <span>错题</span>
+      </button>
+      <button class="tab-item" data-view="stats">
+        <span class="tab-icon">&#128202;</span>
+        <span>分析</span>
+      </button>
+    </nav>
+  </div>
+
+  <script src="./js/db.js"></script>
+  <script src="./js/camera.js"></script>
+  <script src="./js/voice.js"></script>
+  <script src="./js/qwen.js"></script>
+  <script src="./js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
+</body>
+</html>
