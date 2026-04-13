@@ -858,6 +858,252 @@ body {
   margin-top: 4px;
 }
 
+/* Paper Config View */
+#view-paper-config {
+  padding: 16px;
+}
+
+.paper-config-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.quantity-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.qty-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.qty-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+#paper-custom-count {
+  width: 80px;
+  padding: 8px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+#paper-custom-count:focus {
+  border-color: var(--primary);
+}
+
+/* Paper View */
+#view-paper {
+  padding: 16px;
+}
+
+.paper-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.paper-actions button {
+  flex: 1;
+}
+
+/* Grade View */
+#view-grade {
+  padding: 16px;
+}
+
+.grade-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+#grade-preview {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+#btn-submit-grade:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Grade Results */
+.grade-results {
+  margin-top: 16px;
+}
+
+.grade-summary {
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.grade-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grade-result-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+}
+
+.grade-result-item.grade-correct {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.grade-result-item.grade-wrong {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.grade-icon {
+  font-size: 20px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.grade-correct .grade-icon {
+  color: var(--success);
+}
+
+.grade-wrong .grade-icon {
+  color: var(--danger);
+}
+
+.grade-result-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.grade-result-index {
+  font-size: 12px;
+  color: var(--gray-400);
+}
+
+.grade-result-question {
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grade-result-answer {
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+/* Similar Questions Modal (举一反三) */
+.similar-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.similar-item {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+.similar-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.similar-item-index {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.similar-item-source {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.source-db {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.source-ai {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.similar-item-question {
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.similar-item-hint {
+  font-size: 13px;
+  color: var(--gray-600);
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  background: #fffbeb;
+  border-radius: 6px;
+}
+
+.similar-item-answer {
+  font-size: 14px;
+  padding: 10px;
+  background: #f0fdf4;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  color: #166534;
+}
+
+.btn-show-answer {
+  width: 100%;
+  margin-top: 4px;
+}
+
 /* Analyze button */
 .btn-analyze {
   padding: 10px 16px;
@@ -993,3 +1239,247 @@ body {
 .hidden {
   display: none !important;
 }
+
+/* Question Selection Modal */
+.modal-wide {
+  max-height: 85vh;
+}
+
+.selection-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.selection-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.selection-item.selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.selection-check {
+  font-size: 20px;
+  color: var(--gray-400);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.selection-item.selected .selection-check {
+  color: var(--primary);
+}
+
+.selection-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.selection-question {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selection-kp {
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+/* QA Panel */
+.qa-panel {
+  background: white;
+  border-radius: var(--radius);
+  margin: 12px 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.qa-toggle-btn {
+  width: 100%;
+  padding: 14px 16px;
+  background: white;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--primary);
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qa-toggle-btn::before {
+  content: '💬';
+  font-size: 18px;
+}
+
+.qa-body {
+  border-top: 1px solid var(--gray-100);
+}
+
+.qa-chat-area {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qa-message {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.qa-message-user {
+  align-self: flex-end;
+  background: var(--primary);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.qa-message-ai {
+  align-self: flex-start;
+  background: var(--gray-100);
+  color: var(--gray-800);
+  border-bottom-left-radius: 4px;
+}
+
+.qa-input-area {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--gray-100);
+}
+
+.qa-input-area textarea {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: 20px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  line-height: 1.4;
+}
+
+.qa-input-area textarea:focus {
+  border-color: var(--primary);
+}
+
+.qa-send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+}
+
+.qa-send-btn:active {
+  opacity: 0.8;
+}
+
+.qa-send-btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.qa-empty-hint {
+  font-size: 13px;
+  color: var(--gray-400);
+  text-align: center;
+  padding: 20px 0;
+}
+
+.qa-message.qa-error {
+  color: var(--danger);
+}
+
+/* Knowledge Heatmap */
+.heatmap-section {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.heatmap-section h3 {
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: var(--gray-800);
+}
+
+.heatmap-subject-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-600);
+  margin: 16px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.heatmap-subject-header:first-child {
+  margin-top: 0;
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.heatmap-card {
+  padding: 12px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.heatmap-card:active {
+  transform: scale(0.96);
+}
+
+.heatmap-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.heatmap-card-stats {
+  font-size: 11px;
+  opacity: 0.9;
+}
+

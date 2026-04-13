@@ -16,7 +16,6 @@
     <header class="header">
       <h1 id="page-title">错题本</h1>
       <button id="btn-back" class="btn-icon hidden">&#8592;</button>
-      <button id="btn-print" class="btn-icon hidden" title="打印错题">&#128424;</button>
       <button id="btn-settings" class="btn-icon" title="设置">&#9881;</button>
     </header>
 
@@ -47,31 +46,7 @@
       <!-- Add/Edit View -->
       <section id="view-add" class="view hidden">
         <form id="question-form">
-          <div class="form-group">
-            <label for="form-subject">科目</label>
-            <select id="form-subject" required>
-              <option value="math">数学</option>
-              <option value="chinese">语文</option>
-              <option value="english">英语</option>
-              <option value="other">其他</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="form-knowledge-point">知识点</label>
-            <input type="text" id="form-knowledge-point" list="knowledge-point-list" placeholder="如：分数加减法、古诗默写...">
-            <datalist id="knowledge-point-list"></datalist>
-          </div>
-          <div class="form-group">
-            <label for="form-error-type">错误类型</label>
-            <select id="form-error-type">
-              <option value="calculation">计算错误</option>
-              <option value="concept">概念不清</option>
-              <option value="careless">粗心大意</option>
-              <option value="understand">理解偏差</option>
-              <option value="knowledge">知识盲点</option>
-              <option value="other">其他</option>
-            </select>
-          </div>
+          <!-- Camera area always visible -->
           <div class="form-group">
             <label>题目图片</label>
             <div class="image-upload-area" id="image-upload-area">
@@ -83,51 +58,142 @@
               <img id="image-preview" class="hidden" alt="题目图片预览">
             </div>
           </div>
-          <div class="form-group">
-            <label for="form-question">题目</label>
-            <div class="input-with-voice">
-              <textarea id="form-question" rows="3" required placeholder="输入题目..."></textarea>
-              <button type="button" id="btn-voice" class="btn-voice" title="语音输入">&#127908;</button>
+
+          <!-- Form fields: hidden until AI recognition or manual edit -->
+          <div id="form-fields" class="hidden">
+            <div class="form-group">
+              <label for="form-subject">科目</label>
+              <select id="form-subject" required>
+                <option value="math">数学</option>
+                <option value="chinese">语文</option>
+                <option value="english">英语</option>
+                <option value="other">其他</option>
+              </select>
             </div>
-            <div id="voice-status" class="voice-status hidden"></div>
+            <div class="form-group">
+              <label for="form-knowledge-point">知识点</label>
+              <input type="text" id="form-knowledge-point" list="knowledge-point-list" placeholder="如：分数加减法、古诗默写...">
+              <datalist id="knowledge-point-list"></datalist>
+            </div>
+            <div class="form-group">
+              <label for="form-error-type">错误类型</label>
+              <select id="form-error-type">
+                <option value="calculation">计算错误</option>
+                <option value="concept">概念不清</option>
+                <option value="careless">粗心大意</option>
+                <option value="understand">理解偏差</option>
+                <option value="knowledge">知识盲点</option>
+                <option value="other">其他</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="form-question">题目</label>
+              <div class="input-with-voice">
+                <textarea id="form-question" rows="3" required placeholder="输入题目..."></textarea>
+                <button type="button" id="btn-voice" class="btn-voice" title="语音输入">&#127908;</button>
+              </div>
+              <div id="voice-status" class="voice-status hidden"></div>
+            </div>
+            <div class="form-group">
+              <label for="form-wrong">孩子的答案</label>
+              <textarea id="form-wrong" rows="2" placeholder="孩子写的答案..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="form-correct">正确答案</label>
+              <textarea id="form-correct" rows="2" placeholder="正确答案..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="form-note">备注</label>
+              <textarea id="form-note" rows="2" placeholder="错误原因等..."></textarea>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="form-wrong">孩子的答案</label>
-            <textarea id="form-wrong" rows="2" placeholder="孩子写的答案..."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="form-correct">正确答案</label>
-            <textarea id="form-correct" rows="2" placeholder="正确答案..."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="form-note">备注</label>
-            <textarea id="form-note" rows="2" placeholder="错误原因等..."></textarea>
-          </div>
-          <button type="submit" class="btn-primary">保存</button>
+
+          <button type="submit" id="btn-save" class="btn-primary hidden">保存</button>
         </form>
       </section>
 
       <!-- Detail View -->
       <section id="view-detail" class="view hidden">
         <div id="detail-content"></div>
+
+        <!-- QA Panel -->
+        <div id="qa-panel" class="qa-panel hidden">
+          <button id="btn-qa-toggle" class="qa-toggle-btn">向AI提问</button>
+          <div id="qa-body" class="qa-body hidden">
+            <div id="qa-chat" class="qa-chat-area"></div>
+            <div class="qa-input-area">
+              <textarea id="qa-input" rows="2" placeholder="输入你的问题，例如：这道题怎么做？"></textarea>
+              <button id="btn-qa-send" class="qa-send-btn">&#10148;</button>
+            </div>
+          </div>
+        </div>
+
         <div class="detail-actions">
           <button id="btn-edit" class="btn-secondary">编辑</button>
+          <button id="btn-similar" class="btn-secondary">举一反三</button>
           <button id="btn-toggle-master" class="btn-secondary">标记已掌握</button>
           <button id="btn-delete" class="btn-danger">删除</button>
         </div>
       </section>
 
-      <!-- Print Preview View -->
-      <section id="view-print" class="view hidden">
-        <div class="print-options">
-          <div class="print-option-group">
-            <label><input type="checkbox" id="print-include-answers" checked> 包含答案</label>
-            <label><input type="checkbox" id="print-include-images" checked> 包含图片</label>
-            <label><input type="checkbox" id="print-include-wrong" checked> 包含错误答案</label>
+      <!-- Paper Config View -->
+      <section id="view-paper-config" class="view hidden">
+        <div class="paper-config-card">
+          <div class="form-group">
+            <label>科目</label>
+            <select id="paper-subject">
+              <option value="all">全部科目</option>
+              <option value="math">数学</option>
+              <option value="chinese">语文</option>
+              <option value="english">英语</option>
+            </select>
           </div>
-          <button id="btn-do-print" class="btn-primary">开始打印</button>
+          <div class="form-group">
+            <label>题目数量</label>
+            <div class="quantity-selector">
+              <button class="qty-btn" data-count="5">5题</button>
+              <button class="qty-btn active" data-count="10">10题</button>
+              <button class="qty-btn" data-count="20">20题</button>
+              <input type="number" id="paper-custom-count" placeholder="自定义" min="1" max="100">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>排序方式</label>
+            <select id="paper-sort-order">
+              <option value="random">随机抽取</option>
+              <option value="newest">最近错题</option>
+              <option value="oldest">最早错题</option>
+            </select>
+          </div>
+          <button id="btn-generate-paper" class="btn-primary">生成试卷</button>
         </div>
-        <div id="print-preview"></div>
+      </section>
+
+      <!-- Paper Preview View -->
+      <section id="view-paper" class="view hidden">
+        <div class="paper-actions">
+          <button id="btn-print-paper" class="btn-primary">打印试卷</button>
+          <button id="btn-grade-paper" class="btn-analyze">拍照判卷</button>
+        </div>
+        <div id="paper-preview"></div>
+      </section>
+
+      <!-- Grade View (拍照判卷) -->
+      <section id="view-grade" class="view hidden">
+        <div class="grade-card">
+          <div class="form-group">
+            <label>拍摄已完成的试卷</label>
+            <div class="image-upload-area">
+              <input type="file" id="grade-image" accept="image/*" capture="environment" hidden>
+              <button type="button" id="btn-grade-camera" class="btn-secondary">拍照</button>
+              <button type="button" id="btn-grade-gallery" class="btn-secondary">选图</button>
+              <img id="grade-preview" class="hidden" alt="判卷图片预览">
+            </div>
+          </div>
+          <button id="btn-submit-grade" class="btn-primary" disabled>AI 判卷</button>
+          <div id="grade-status" class="analyze-status hidden"></div>
+          <div id="grade-results" class="grade-results hidden"></div>
+        </div>
       </section>
 
       <!-- Statistics View -->
@@ -154,6 +220,35 @@
       </div>
     </div>
 
+    <!-- Question Selection Modal (multi-question recognition) -->
+    <div id="selection-modal" class="modal hidden">
+      <div class="modal-content modal-wide">
+        <div class="modal-header">
+          <h3>识别到多道题目，请选择要添加的</h3>
+          <button id="btn-select-cancel" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="selection-list" class="selection-list"></div>
+          <button id="btn-select-add" class="btn-primary">添加选中题目</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Similar Questions Modal (举一反三) -->
+    <div id="similar-modal" class="modal hidden">
+      <div class="modal-content modal-wide">
+        <div class="modal-header">
+          <h3>举一反三 — 同类型变式练习</h3>
+          <button id="btn-similar-close" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="similar-status" class="analyze-status hidden"></div>
+          <div id="similar-list" class="similar-list"></div>
+          <button id="btn-similar-print" class="btn-secondary hidden">打印练习卷</button>
+        </div>
+      </div>
+    </div>
+
     <!-- FAB -->
     <button id="btn-add" class="fab">+</button>
 
@@ -162,6 +257,10 @@
       <button class="tab-item active" data-view="list">
         <span class="tab-icon">&#128203;</span>
         <span>错题</span>
+      </button>
+      <button class="tab-item" data-view="paper-config">
+        <span class="tab-icon">&#128220;</span>
+        <span>组卷</span>
       </button>
       <button class="tab-item" data-view="stats">
         <span class="tab-icon">&#128202;</span>

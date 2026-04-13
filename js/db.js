@@ -1,5 +1,5 @@
 const DB_NAME = 'cuotiben';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = 'questions';
 
 let db = null;
@@ -19,6 +19,10 @@ function openDB() {
         store.createIndex('mastered', 'mastered', { unique: false });
         store.createIndex('createdAt', 'createdAt', { unique: false });
       }
+      // v2: add new fields
+      if (e.oldVersion < 2) {
+        // Fields will be lazily populated on first use
+      }
     };
     req.onsuccess = (e) => { db = e.target.result; resolve(db); };
     req.onerror = (e) => reject(e.target.error);
@@ -33,6 +37,9 @@ async function addQuestion(data) {
     const record = {
       ...data,
       mastered: false,
+      attempts: 0,
+      lastResult: null,
+      lastResultAt: null,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -96,7 +103,7 @@ async function getAllQuestions({ subject = 'all', search = '', showMastered = fa
       }
       if (search) {
         const q = search.toLowerCase();
-        results = results.filter((r) => r.question.toLowerCase().includes(q));
+        results = results.filter((r) => (r.question || '').toLowerCase().includes(q));
       }
       results.sort((a, b) => b.createdAt - a.createdAt);
       resolve(results);
@@ -107,5 +114,44 @@ async function getAllQuestions({ subject = 'all', search = '', showMastered = fa
 
 async function toggleMastered(id) {
   const item = await getQuestion(id);
+  if (!item) throw new Error('题目不存在');
   return updateQuestion(id, { mastered: !item.mastered });
+}
+
+async function markCorrect(id) {
+  const item = await getQuestion(id);
+  const newAttempts = (item.attempts || 0) + 1;
+  let mastered = item.mastered || false;
+  // If correct twice in a row or already mastered, mark as mastered
+  if (item.lastResult === 'correct' || newAttempts >= 2) {
+    mastered = true;
+  }
+  return updateQuestion(id, {
+    attempts: newAttempts,
+    lastResult: 'correct',
+    lastResultAt: Date.now(),
+    mastered,
+  });
+}
+
+async function markWrong(id) {
+  const item = await getQuestion(id);
+  const newAttempts = (item.attempts || 0) + 1;
+  return updateQuestion(id, {
+    attempts: newAttempts,
+    lastResult: 'wrong',
+    lastResultAt: Date.now(),
+    mastered: false,
+  });
+}
+
+async function getRandomQuestions(count, { subject = 'all', showMastered = false } = {}) {
+  const all = await getAllQuestions({ subject, showMastered });
+  // Fisher-Yates shuffle
+  const shuffled = [...all];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, count);
 }

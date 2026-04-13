@@ -7,6 +7,7 @@ const ASSETS = [
   './js/db.js',
   './js/voice.js',
   './js/camera.js',
+  './js/qwen.js',
   './manifest.json',
 ];
 
