@@ -881,9 +881,14 @@ document.querySelectorAll('.filter-btn').forEach((btn) => {
   });
 });
 
+// Debounced search
+let searchTimeout = null;
 $('#search-input').addEventListener('input', (e) => {
-  filters.search = e.target.value.trim();
-  renderList();
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    filters.search = e.target.value.trim();
+    renderList();
+  }, 300);
 });
 
 $('#toggle-mastered').addEventListener('change', (e) => {

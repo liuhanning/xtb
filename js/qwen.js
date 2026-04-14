@@ -94,14 +94,12 @@
 5. 解题思路提示要针对孩子的错误类型给出提醒
 6. 题目要完整可作答`;
 
-    const DEFAULT_API_KEY = 'sk-2a643b19a157474b937c594ed7f0d97c';
-
   /**
    * 基于题目上下文向AI提问，获取讲解
    */
   window.QwenAI = {
     getApiKey() {
-      return localStorage.getItem('dashscope_api_key') || DEFAULT_API_KEY;
+      return localStorage.getItem('dashscope_api_key') || '';
     },
 
     setApiKey(key) {
