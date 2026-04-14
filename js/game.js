@@ -135,10 +135,24 @@
       const bigCube = document.getElementById('dice-overlay-cube');
       if (overlay) overlay.classList.remove('hidden');
 
-      // Reset big cube transform for pop-in animation
+      // Wait a frame then pop-in
+      await new Promise(r => requestAnimationFrame(r));
       if (bigCube) {
         bigCube.style.transition = 'none';
-        bigCube.style.transform = '';
+        bigCube.style.transform = 'scale(0) rotateX(0deg) rotateY(0deg)';
+        bigCube.style.opacity = '0';
+        // Force reflow
+        void bigCube.offsetWidth;
+        // Pop in with transition
+        bigCube.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
+        bigCube.style.transform = 'scale(1) rotateX(0deg) rotateY(0deg)';
+        bigCube.style.opacity = '1';
+      }
+      await delay(350);
+
+      // Remove transition so rolling is instant per frame
+      if (bigCube) {
+        bigCube.style.transition = 'none';
       }
 
       // 3D rolling animation on the big dice
@@ -156,8 +170,7 @@
           gameState.diceValue = Math.floor(Math.random() * 6) + 1;
 
           if (bigCube) {
-            bigCube.style.transition = 'none';
-            bigCube.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
+            bigCube.style.transform = `scale(1) rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
           }
 
           step++;
@@ -176,11 +189,11 @@
       if (bigCube) {
         bigCube.style.transition = 'transform 0.7s cubic-bezier(0.2, 0.8, 0.3, 1.2)';
         const final = DICE_ROTATIONS[gameState.diceValue];
-        bigCube.style.transform = `rotateX(${final.x}deg) rotateY(${final.y}deg)`;
+        bigCube.style.transform = `scale(1) rotateX(${final.x}deg) rotateY(${final.y}deg)`;
       }
 
       // Wait for snap animation, then hide overlay
-      await delay(800);
+      await delay(900);
       if (overlay) overlay.classList.add('hidden');
 
       gameState.phase = 'MOVING';
