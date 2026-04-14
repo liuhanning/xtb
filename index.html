@@ -219,10 +219,25 @@
         </div>
         <div class="game-controls">
           <span id="game-phase-label" class="game-phase-label"></span>
-          <span id="dice-display" class="dice-display">🎲</span>
+          <div id="dice-container" class="dice-container">
+            <div id="dice-face" class="dice-face">
+              <span class="dice-dot" data-pos="1"></span>
+              <span class="dice-dot" data-pos="2"></span>
+              <span class="dice-dot" data-pos="3"></span>
+              <span class="dice-dot" data-pos="4"></span>
+              <span class="dice-dot" data-pos="5"></span>
+              <span class="dice-dot" data-pos="6"></span>
+              <span class="dice-dot" data-pos="7"></span>
+              <span class="dice-dot" data-pos="8"></span>
+              <span class="dice-dot" data-pos="9"></span>
+            </div>
+          </div>
           <button id="btn-roll-dice" class="btn-roll hidden">掷骰子</button>
         </div>
-        <div id="game-board-grid" class="game-board-grid"></div>
+        <div class="game-board-wrapper">
+          <svg id="game-path-svg" class="game-path-svg"></svg>
+          <div id="game-board-grid" class="game-board-grid"></div>
+        </div>
       </section>
     </main>
 

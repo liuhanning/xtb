@@ -248,6 +248,35 @@
     },
   };
 
+  // ==================== SVG ICONS ====================
+  const FOX_SVG = `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="6,4 12,14 3,14" fill="#f59e0b"/>
+    <polygon points="26,4 20,14 29,14" fill="#f59e0b"/>
+    <polygon points="7,6 11,13 5,13" fill="#fde68a"/>
+    <polygon points="25,6 21,13 27,13" fill="#fde68a"/>
+    <ellipse cx="16" cy="18" rx="10" ry="9" fill="#fef3c7"/>
+    <ellipse cx="10" cy="22" rx="5" ry="4" fill="#fde68a" opacity="0.6"/>
+    <ellipse cx="22" cy="22" rx="5" ry="4" fill="#fde68a" opacity="0.6"/>
+    <circle cx="12" cy="16" r="2" fill="#1e293b"/>
+    <circle cx="20" cy="16" r="2" fill="#1e293b"/>
+    <circle cx="11.3" cy="15.2" r="0.7" fill="white"/>
+    <circle cx="19.3" cy="15.2" r="0.7" fill="white"/>
+    <ellipse cx="16" cy="20" rx="1.8" ry="1.4" fill="#fb7185"/>
+    <path d="M14,22 Q16,24 18,22" stroke="#92400e" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="9" cy="19" rx="2" ry="1.5" fill="#fca5a5" opacity="0.5"/>
+    <ellipse cx="23" cy="19" rx="2" ry="1.5" fill="#fca5a5" opacity="0.5"/>
+  </svg>`;
+
+  // Dice dot patterns: value -> array of visible dot positions (1-9, row-major 3x3)
+  const DICE_PATTERNS = {
+    1: [5],
+    2: [1, 9],
+    3: [1, 5, 9],
+    4: [1, 3, 7, 9],
+    5: [1, 3, 5, 7, 9],
+    6: [1, 3, 4, 6, 7, 9],
+  };
+
   // ==================== RENDERING ====================
   window.GameRenderer = {
     renderBoard() {
@@ -256,42 +285,92 @@
 
       const { board, playerPos, answered } = gameState;
 
-      // Build snake-layout grid
-      const rows = Math.ceil(board.length / BOARD_COLS);
-      container.style.gridTemplateRows = `auto repeat(${rows}, 1fr)`;
-
       let html = '';
       board.forEach((tile, index) => {
-        const row = Math.floor(index / BOARD_COLS);
-        const colInRow = index % BOARD_COLS;
-        // Snake: odd rows reverse
-        const actualCol = row % 2 === 1 ? (BOARD_COLS - 1 - colInRow) : colInRow;
-
         const isPlayer = index === playerPos;
         const isAnswered = answered.includes(index);
         const subjectClass = `subject-${tile.subject}`;
 
         html += `<div class="game-tile ${subjectClass} ${isPlayer ? 'player-here' : ''} ${isAnswered ? 'answered' : ''}"
-                      data-index="${index}"
-                      style="grid-row: ${row + 2}; grid-column: ${actualCol + 1};">
+                      data-index="${index}">
           <div class="tile-number">${index + 1}</div>
-          <div class="tile-kp">${escapeHtml(truncate(tile.knowledgePoint, 10))}</div>
-          ${isPlayer ? '<div class="player-piece">🎮</div>' : ''}
-          ${isAnswered ? '<div class="answered-badge">\u2713</div>' : ''}
+          <div class="tile-kp">${escapeHtml(truncate(tile.knowledgePoint, 12))}</div>
+          ${isPlayer ? `<div class="player-piece">${FOX_SVG}</div>` : ''}
+          ${isAnswered ? '<div class="answered-badge">✓</div>' : ''}
         </div>`;
       });
 
       container.innerHTML = html;
 
-      // Update dice
-      const diceEl = document.getElementById('dice-display');
-      if (diceEl) {
-        diceEl.textContent = gameState.diceAnimating ? '\ud83c\udfb2' : `\ud83c\udfb2 ${gameState.diceValue}`;
-        diceEl.className = `dice-display ${gameState.diceAnimating ? 'dice-animating' : ''}`;
-      }
+      // Render dice face
+      this.renderDiceFace();
+
+      // Render path lines
+      this.renderPathLines();
 
       updateGameStats();
       updatePhaseUI();
+    },
+
+    renderDiceFace() {
+      const face = document.getElementById('dice-face');
+      if (!face || !gameState) return;
+
+      const value = gameState.diceAnimating ? Math.floor(Math.random() * 6) + 1 : gameState.diceValue;
+      const dots = DICE_PATTERNS[value] || [];
+
+      face.querySelectorAll('.dice-dot').forEach(dot => {
+        const pos = parseInt(dot.dataset.pos);
+        dot.classList.toggle('visible', dots.includes(pos));
+      });
+
+      face.classList.toggle('rolling', gameState.diceAnimating);
+    },
+
+    renderPathLines() {
+      const svg = document.getElementById('game-path-svg');
+      const grid = document.getElementById('game-board-grid');
+      if (!svg || !grid || !gameState) return;
+
+      const tiles = grid.querySelectorAll('.game-tile');
+      if (tiles.length < 2) return;
+
+      const gridRect = grid.getBoundingClientRect();
+      const svgRect = svg.getBoundingClientRect();
+      const offsetX = gridRect.left - svgRect.left;
+      const offsetY = gridRect.top - svgRect.top;
+
+      // Build snake order positions
+      const cols = 4;
+      const positions = [];
+      for (let i = 0; i < gameState.board.length; i++) {
+        const row = Math.floor(i / cols);
+        const colInRow = i % cols;
+        const actualCol = row % 2 === 1 ? (cols - 1 - colInRow) : colInRow;
+
+        const tile = tiles[i];
+        if (tile) {
+          const tileRect = tile.getBoundingClientRect();
+          positions.push({
+            x: tileRect.left - svgRect.left + tileRect.width / 2,
+            y: tileRect.top - svgRect.top + tileRect.height / 2,
+          });
+        }
+      }
+
+      if (positions.length < 2) return;
+
+      let pathD = `M ${positions[0].x} ${positions[0].y}`;
+      for (let i = 1; i < positions.length; i++) {
+        pathD += ` L ${positions[i].x} ${positions[i].y}`;
+      }
+
+      svg.setAttribute('viewBox', `0 0 ${svgRect.width} ${svgRect.height}`);
+      svg.innerHTML = `
+        <path class="game-path-line" d="${pathD}"/>
+        <circle cx="${positions[0].x}" cy="${positions[0].y}" r="6" fill="#22c55e" opacity="0.6"/>
+        <text x="${positions[0].x}" y="${positions[0].y + 3}" text-anchor="middle" font-size="8" fill="white" font-weight="bold">起</text>
+      `;
     },
   };
 
@@ -456,9 +535,17 @@
     const livesEl = document.getElementById('game-lives');
     const coinsEl = document.getElementById('game-coins');
     const progressEl = document.getElementById('game-progress');
-    if (livesEl) livesEl.textContent = '\u2764\ufe0f'.repeat(Math.max(0, gameState.lives));
-    if (coinsEl) coinsEl.textContent = `\ud83d\udcb0 ${gameState.coins}`;
-    if (progressEl) progressEl.textContent = `${gameState.answered.length}/${gameState.board.length}`;
+    if (livesEl) {
+      const hearts = Math.max(0, gameState.lives);
+      livesEl.innerHTML = Array(hearts).fill('❤️').join('') + Array(MAX_LIVES - hearts).fill('').join('');
+    }
+    if (coinsEl) coinsEl.textContent = `💰 ${gameState.coins}`;
+    if (progressEl) {
+      const answered = gameState.answered.length;
+      const total = gameState.board.length;
+      const stars = '⭐'.repeat(answered) + '☆'.repeat(total - answered);
+      progressEl.textContent = stars;
+    }
   }
 
   function updatePhaseUI() {
@@ -586,6 +673,12 @@
       gameState = state;
       GameRenderer.renderBoard();
       updatePhaseUI();
+
+      // Re-render path lines after layout settles
+      setTimeout(() => GameRenderer.renderPathLines(), 100);
+      window.addEventListener('resize', () => {
+        if (gameState) GameRenderer.renderPathLines();
+      });
     } catch (err) {
       console.error('[Game] Error:', err);
       boardGrid.innerHTML = `<div class="game-error">生成失败：${err.message}</div>`;
