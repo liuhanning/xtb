@@ -129,27 +129,35 @@
       if (gameState.phase !== 'ROLL') return;
 
       gameState.diceAnimating = true;
-      GameRenderer.renderBoard();
 
-      // 3D rolling animation
-      const rollDuration = 800;
-      const rollInterval = 100;
+      // Show fullscreen overlay with big dice
+      const overlay = document.getElementById('dice-overlay');
+      const bigCube = document.getElementById('dice-overlay-cube');
+      if (overlay) overlay.classList.remove('hidden');
+
+      // Reset big cube transform for pop-in animation
+      if (bigCube) {
+        bigCube.style.transition = 'none';
+        bigCube.style.transform = '';
+      }
+
+      // 3D rolling animation on the big dice
+      const rollDuration = 1200;
+      const rollInterval = 80;
       const rollSteps = rollDuration / rollInterval;
-      const cube = document.getElementById('dice-cube');
 
       await new Promise(resolve => {
         let step = 0;
         let currentRotX = 0;
         let currentRotY = 0;
         const timer = setInterval(() => {
-          // Random spin each frame
-          currentRotX += Math.floor(Math.random() * 180) + 90;
-          currentRotY += Math.floor(Math.random() * 180) + 90;
+          currentRotX += Math.floor(Math.random() * 200) + 100;
+          currentRotY += Math.floor(Math.random() * 200) + 100;
           gameState.diceValue = Math.floor(Math.random() * 6) + 1;
 
-          if (cube) {
-            cube.style.transition = 'none';
-            cube.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
+          if (bigCube) {
+            bigCube.style.transition = 'none';
+            bigCube.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
           }
 
           step++;
@@ -165,11 +173,15 @@
       gameState.diceAnimating = false;
 
       // Smooth snap to the final face
-      if (cube) {
-        cube.style.transition = 'transform 0.6s cubic-bezier(0.2, 0.8, 0.3, 1.2)';
+      if (bigCube) {
+        bigCube.style.transition = 'transform 0.7s cubic-bezier(0.2, 0.8, 0.3, 1.2)';
         const final = DICE_ROTATIONS[gameState.diceValue];
-        cube.style.transform = `rotateX(${final.x}deg) rotateY(${final.y}deg)`;
+        bigCube.style.transform = `rotateX(${final.x}deg) rotateY(${final.y}deg)`;
       }
+
+      // Wait for snap animation, then hide overlay
+      await delay(800);
+      if (overlay) overlay.classList.add('hidden');
 
       gameState.phase = 'MOVING';
       GameRenderer.renderBoard();

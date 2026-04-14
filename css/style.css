@@ -1702,6 +1702,55 @@ body {
   display: block;
 }
 
+/* Fullscreen dice overlay */
+.dice-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.dice-overlay.hidden {
+  display: none;
+}
+
+.dice-cube-big {
+  width: 140px;
+  height: 140px;
+  animation: dice-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.dice-cube-big .dice-face {
+  width: 140px;
+  height: 140px;
+  border-width: 4px;
+  padding: 14px;
+  border-radius: 16px;
+}
+
+.dice-cube-big .dice-dot {
+  width: 22px;
+  height: 22px;
+}
+
+.dice-cube-big .dice-front  { transform: translateZ(70px); }
+.dice-cube-big .dice-back   { transform: rotateY(180deg) translateZ(70px); }
+.dice-cube-big .dice-right  { transform: rotateY(90deg) translateZ(70px); }
+.dice-cube-big .dice-left   { transform: rotateY(-90deg) translateZ(70px); }
+.dice-cube-big .dice-top    { transform: rotateX(90deg) translateZ(70px); }
+.dice-cube-big .dice-bottom { transform: rotateX(-90deg) translateZ(70px); }
+
+@keyframes dice-pop-in {
+  0%   { transform: scale(0.3) rotateX(0deg) rotateY(0deg); opacity: 0; }
+  60%  { transform: scale(1.1) rotateX(10deg) rotateY(10deg); opacity: 1; }
+  100% { transform: scale(1) rotateX(0deg) rotateY(0deg); opacity: 1; }
+}
+
 .btn-roll {
   padding: 10px 24px;
   background: linear-gradient(135deg, #f97316, #fb923c);
