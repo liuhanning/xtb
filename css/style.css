@@ -1637,40 +1637,56 @@ body {
   flex: 1;
 }
 
-/* Dice Face */
+/* 3D Dice Cube */
 .dice-container {
-  perspective: 200px;
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
+  perspective: 300px;
   flex-shrink: 0;
 }
 
+.dice-cube {
+  width: 46px;
+  height: 46px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+}
+
+.dice-cube.rolling {
+  animation: dice-3d-roll 0.15s infinite linear;
+}
+
+@keyframes dice-3d-roll {
+  0%   { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  25%  { transform: rotateX(90deg) rotateY(45deg) rotateZ(30deg); }
+  50%  { transform: rotateX(180deg) rotateY(90deg) rotateZ(60deg); }
+  75%  { transform: rotateX(270deg) rotateY(135deg) rotateZ(90deg); }
+  100% { transform: rotateX(360deg) rotateY(180deg) rotateZ(120deg); }
+}
+
 .dice-face {
-  width: 44px;
-  height: 44px;
+  position: absolute;
+  width: 46px;
+  height: 46px;
   background: white;
   border: 2.5px solid #333;
-  border-radius: 10px;
+  border-radius: 8px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  padding: 4px;
+  padding: 5px;
   gap: 1px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.15);
-  transition: transform 0.15s;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.06);
 }
 
-.dice-face.rolling {
-  animation: dice-roll 0.1s infinite;
-}
-
-@keyframes dice-roll {
-  0%   { transform: rotateX(0deg) rotateZ(0deg); }
-  25%  { transform: rotateX(15deg) rotateZ(10deg) scale(1.08); }
-  50%  { transform: rotateX(-10deg) rotateZ(-8deg) scale(0.95); }
-  75%  { transform: rotateX(8deg) rotateZ(12deg) scale(1.05); }
-  100% { transform: rotateX(0deg) rotateZ(0deg); }
-}
+/* 6 faces of cube */
+.dice-front  { transform: translateZ(23px); }
+.dice-back   { transform: rotateY(180deg) translateZ(23px); }
+.dice-right  { transform: rotateY(90deg) translateZ(23px); }
+.dice-left   { transform: rotateY(-90deg) translateZ(23px); }
+.dice-top    { transform: rotateX(90deg) translateZ(23px); }
+.dice-bottom { transform: rotateX(-90deg) translateZ(23px); }
 
 .dice-dot {
   display: none;

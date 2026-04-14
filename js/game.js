@@ -129,27 +129,50 @@
       if (gameState.phase !== 'ROLL') return;
 
       gameState.diceAnimating = true;
+      GameRenderer.renderBoard();
 
-      const animationMs = 600;
-      const intervalMs = 80;
-      const steps = animationMs / intervalMs;
+      // 3D rolling animation
+      const rollDuration = 800;
+      const rollInterval = 100;
+      const rollSteps = rollDuration / rollInterval;
+      const cube = document.getElementById('dice-cube');
 
       await new Promise(resolve => {
         let step = 0;
+        let currentRotX = 0;
+        let currentRotY = 0;
         const timer = setInterval(() => {
+          // Random spin each frame
+          currentRotX += Math.floor(Math.random() * 180) + 90;
+          currentRotY += Math.floor(Math.random() * 180) + 90;
           gameState.diceValue = Math.floor(Math.random() * 6) + 1;
-          GameRenderer.renderBoard();
+
+          if (cube) {
+            cube.style.transition = 'none';
+            cube.style.transform = `rotateX(${currentRotX}deg) rotateY(${currentRotY}deg)`;
+          }
+
           step++;
-          if (step >= steps) {
+          if (step >= rollSteps) {
             clearInterval(timer);
             resolve();
           }
-        }, intervalMs);
+        }, rollInterval);
       });
 
+      // Final value + snap to face
       gameState.diceValue = Math.floor(Math.random() * 6) + 1;
       gameState.diceAnimating = false;
+
+      // Smooth snap to the final face
+      if (cube) {
+        cube.style.transition = 'transform 0.6s cubic-bezier(0.2, 0.8, 0.3, 1.2)';
+        const final = DICE_ROTATIONS[gameState.diceValue];
+        cube.style.transform = `rotateX(${final.x}deg) rotateY(${final.y}deg)`;
+      }
+
       gameState.phase = 'MOVING';
+      GameRenderer.renderBoard();
 
       await this.movePlayer(gameState.diceValue);
     },
@@ -277,6 +300,17 @@
     6: [1, 3, 4, 6, 7, 9],
   };
 
+  // 3D dice: rotation angles to show each face toward viewer
+  // front=1, back=6, right=2, left=5, top=3, bottom=4
+  const DICE_ROTATIONS = {
+    1: { x: 0, y: 0 },
+    2: { x: 0, y: -90 },
+    3: { x: -90, y: 0 },
+    4: { x: 90, y: 0 },
+    5: { x: 0, y: 90 },
+    6: { x: 0, y: 180 },
+  };
+
   // ==================== RENDERING ====================
   window.GameRenderer = {
     renderBoard() {
@@ -313,18 +347,38 @@
     },
 
     renderDiceFace() {
-      const face = document.getElementById('dice-face');
-      if (!face || !gameState) return;
+      const cube = document.getElementById('dice-cube');
+      if (!cube || !gameState) return;
 
-      const value = gameState.diceAnimating ? Math.floor(Math.random() * 6) + 1 : gameState.diceValue;
-      const dots = DICE_PATTERNS[value] || [];
+      // Face dot patterns (standard dice: opposite faces sum to 7)
+      // front=1, back=6, right=3, left=4, top=2, bottom=5
+      const faceDots = {
+        'dice-front':  [5],           // 1
+        'dice-back':   [1,3,4,6,7,9], // 6
+        'dice-right':  [1,5,9],        // 3
+        'dice-left':   [1,3,7,9],      // 4
+        'dice-top':    [1,9],          // 2
+        'dice-bottom': [1,3,5,7,9],    // 5
+      };
 
-      face.querySelectorAll('.dice-dot').forEach(dot => {
-        const pos = parseInt(dot.dataset.pos);
-        dot.classList.toggle('visible', dots.includes(pos));
+      cube.querySelectorAll('.dice-face').forEach(faceEl => {
+        const faceClass = faceEl.classList[1]; // dice-front, dice-back, etc.
+        const dots = faceDots[faceClass] || [];
+        faceEl.querySelectorAll('.dice-dot').forEach(dot => {
+          const pos = parseInt(dot.dataset.pos);
+          dot.classList.toggle('visible', dots.includes(pos));
+        });
       });
 
-      face.classList.toggle('rolling', gameState.diceAnimating);
+      if (gameState.diceAnimating) {
+        cube.classList.add('rolling');
+        cube.style.transform = '';
+      } else {
+        cube.classList.remove('rolling');
+        // Rotate cube to show the target face
+        const rotation = DICE_ROTATIONS[gameState.diceValue] || DICE_ROTATIONS[1];
+        cube.style.transform = `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`;
+      }
     },
 
     renderPathLines() {
