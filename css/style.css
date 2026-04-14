@@ -1876,24 +1876,34 @@ body {
   50% { border-color: #fbbf24; box-shadow: 0 0 12px rgba(251,191,36,0.5); }
 }
 
-.tile-number {
-  font-size: 13px;
-  font-weight: 800;
-  color: rgba(0,0,0,0.35);
+/* Tile badge — small circle number */
+.tile-badge {
   position: absolute;
   top: 4px;
-  left: 8px;
+  left: 6px;
+  width: 20px;
+  height: 20px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.tile-kp {
-  font-size: 10px;
-  color: rgba(0,0,0,0.55);
-  text-align: center;
-  line-height: 1.3;
-  word-break: break-all;
-  max-width: 100%;
-  overflow: hidden;
-  font-weight: 600;
+/* Main tile emoji (question icon or star) */
+.tile-emoji {
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+/* Subject animal mascot */
+.tile-animal {
+  font-size: 14px;
+  line-height: 1;
 }
 
 /* Player piece — Fox mascot */

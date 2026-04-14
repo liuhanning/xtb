@@ -336,6 +336,17 @@
     6: { x: 0, y: 180 },
   };
 
+  // ==================== GAME TILE EMOJIS ====================
+  const SUBJECT_ANIMALS = {
+    math: { emoji: '\ud83e\udd8a', name: '狐狸' },
+    chinese: { emoji: '\ud83d\udc30', name: '兔子' },
+    english: { emoji: '\ud83d\udc31', name: '猫咪' },
+    other: { emoji: '\ud83d\udc3b', name: '小熊' },
+  };
+
+  // Question type → emoji mapping
+  const TYPE_EMOJIS = ['\u270f\ufe0f', '\ud83d\udcdd', '\ud83d\udcd6', '\ud83c\udfaf', '\ud83d\udca1', '\ud83e\udde9', '\u2b50', '\ud83c\udf1f', '\ud83c\udfa8', '\ud83c\udfb5'];
+
   // ==================== RENDERING ====================
   window.GameRenderer = {
     renderBoard() {
@@ -349,13 +360,16 @@
         const isPlayer = index === playerPos;
         const isAnswered = answered.includes(index);
         const subjectClass = `subject-${tile.subject}`;
+        const animal = SUBJECT_ANIMALS[tile.subject] || SUBJECT_ANIMALS.other;
+        const tileEmoji = TYPE_EMOJIS[index % TYPE_EMOJIS.length];
 
         html += `<div class="game-tile ${subjectClass} ${isPlayer ? 'player-here' : ''} ${isAnswered ? 'answered' : ''}"
                       data-index="${index}">
-          <div class="tile-number">${index + 1}</div>
-          <div class="tile-kp">${escapeHtml(truncate(tile.knowledgePoint, 12))}</div>
+          <div class="tile-badge">${index + 1}</div>
+          <div class="tile-emoji">${isAnswered ? '\u2b50' : tileEmoji}</div>
+          <div class="tile-animal">${animal.emoji}</div>
           ${isPlayer ? `<div class="player-piece">${FOX_SVG}</div>` : ''}
-          ${isAnswered ? '<div class="answered-badge">✓</div>' : ''}
+          ${isAnswered ? '<div class="answered-badge">\u2713</div>' : ''}
         </div>`;
       });
 
