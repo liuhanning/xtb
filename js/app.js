@@ -38,6 +38,7 @@ const views = {
   paper: $('#view-paper'),
   grade: $('#view-grade'),
   stats: $('#view-stats'),
+  game: $('#view-game'),
 };
 const title = $('#page-title');
 const backBtn = $('#btn-back');
@@ -50,7 +51,7 @@ function showView(name) {
   Object.entries(views).forEach(([key, el]) => {
     el.classList.toggle('hidden', key !== name);
   });
-  const isMainView = name === 'list' || name === 'paperConfig' || name === 'stats';
+  const isMainView = name === 'list' || name === 'paperConfig' || name === 'stats' || name === 'game';
   backBtn.classList.toggle('hidden', isMainView);
   fab.classList.toggle('hidden', name !== 'list');
   tabBar.classList.toggle('hidden', !isMainView);
@@ -60,15 +61,21 @@ function goBack() {
   if (currentView === 'detail') {
     title.textContent = '错题本';
     showView('list');
+    renderList();
   } else if (currentView === 'add') {
     showView('list');
     resetForm();
+    renderList();
   } else if (currentView === 'paper') {
     title.textContent = '组卷';
     showView('paperConfig');
   } else if (currentView === 'grade') {
     title.textContent = '组卷';
     showView('paper');
+  } else if (currentView === 'game') {
+    title.textContent = '错题本';
+    showView('list');
+    renderList();
   }
 }
 
@@ -85,6 +92,9 @@ document.querySelectorAll('.tab-item').forEach((tab) => {
     } else if (view === 'paper-config') {
       title.textContent = '组卷';
       showPaperConfig();
+    } else if (view === 'game') {
+      title.textContent = '错题闯关';
+      startGame(filters.subject);
     } else if (view === 'stats') {
       title.textContent = '学习分析';
       showStats();
@@ -795,6 +805,71 @@ $('#btn-save-settings').addEventListener('click', () => {
   closeSettingsModal();
 });
 
+// ==================== DATA IMPORT/EXPORT ====================
+
+$('#btn-export').addEventListener('click', async () => {
+  try {
+    const data = await getAllQuestions({ showMastered: true });
+    if (data.length === 0) {
+      alert('暂无数据可导出');
+      return;
+    }
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cuotiben_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    alert(`已导出 ${data.length} 条错题`);
+  } catch (e) {
+    alert(`导出失败：${e.message}`);
+  }
+});
+
+$('#btn-import').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsText(file);
+    });
+    const data = JSON.parse(text);
+    if (!Array.isArray(data) || data.length === 0) {
+      alert('文件格式不正确');
+      return;
+    }
+    if (!confirm(`确定导入 ${data.length} 条错题？`)) return;
+
+    let successCount = 0;
+    for (const item of data) {
+      try {
+        await addQuestion({
+          subject: item.subject || 'other',
+          knowledgePoint: item.knowledgePoint,
+          errorType: item.errorType,
+          question: item.question,
+          wrongAnswer: item.wrongAnswer,
+          correctAnswer: item.correctAnswer,
+          note: item.note || '',
+          questionImage: item.questionImage,
+        });
+        successCount++;
+      } catch (err) {
+        console.warn('Import skip:', item.id, err.message);
+      }
+    }
+    alert(`导入完成：${successCount}/${data.length} 条`);
+    renderList();
+  } catch (err) {
+    alert(`导入失败：${err.message}`);
+  }
+  e.target.value = '';
+});
+
 // ==================== FILTERS ====================
 
 document.querySelectorAll('.filter-btn').forEach((btn) => {
@@ -1284,6 +1359,55 @@ function renderStats(items) {
       </div>`;
   });
   html += '</div>';
+
+  // Game stats
+  getGameStats().then(gs => {
+    if (!gs) return;
+    const statsContent = $('#stats-content');
+    const gameSection = document.createElement('div');
+    gameSection.className = 'stats-section';
+    gameSection.innerHTML = `
+      <h3>🎮 闯关记录</h3>
+      <div class="stats-overview" style="margin-top: 12px">
+        <div class="stat-card">
+          <div class="stat-num">${gs.totalGames}</div>
+          <div class="stat-label">游戏次数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num mastered">${gs.totalCorrect}</div>
+          <div class="stat-label">答对题数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num rate">${gs.avgAccuracy}%</div>
+          <div class="stat-label">平均正确率</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">${gs.totalCoins}</div>
+          <div class="stat-label">累计金币</div>
+        </div>
+      </div>
+    `;
+    statsContent.appendChild(gameSection);
+
+    // Recent games table
+    if (gs.recentGames.length > 0) {
+      const recentSection = document.createElement('div');
+      recentSection.className = 'stats-section';
+      let recentHtml = '<h3>最近游戏</h3>';
+      gs.recentGames.forEach(g => {
+        recentHtml += `
+          <div class="weak-item">
+            <span class="weak-name">${SUBJECT_LABELS[g.subject] || '全部'}</span>
+            <span class="weak-count">${g.accuracy}%</span>
+            <span class="weak-error">${g.correctCount}对 ${g.wrongCount}错</span>
+            <span class="weak-error">💰${g.coins}</span>
+            <span class="weak-error">${formatDate(g.playedAt)}</span>
+          </div>`;
+      });
+      recentSection.innerHTML = recentHtml;
+      statsContent.appendChild(recentSection);
+    }
+  });
 
   $('#stats-content').innerHTML = html;
 }
