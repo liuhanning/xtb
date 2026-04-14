@@ -407,7 +407,7 @@ async function showSimilarQuestions(id) {
 
     // Step 2: If not enough, generate with AI
     let aiQuestions = [];
-    if (dbSimilar.length < 3 && QwenAI.hasApiKey() && item.question) {
+    if (dbSimilar.length < 3 && item.question) {
       try {
         aiQuestions = await QwenAI.generateSimilarQuestions(item);
       } catch (e) {
@@ -562,11 +562,6 @@ async function sendQuestion() {
   const message = input.value.trim();
   if (!message) return;
   if (!qaCurrentItem) return;
-  if (!QwenAI.hasApiKey()) {
-    alert('请先在设置中配置 DashScope API Key');
-    openSettingsModal();
-    return;
-  }
 
   // Remove empty hint
   const hint = $('#qa-chat .qa-empty-hint');
@@ -728,11 +723,6 @@ async function triggerAnalyze() {
     alert('请先拍照或选择图片');
     return;
   }
-  if (!QwenAI.hasApiKey()) {
-    alert('请先在设置中配置 DashScope API Key');
-    openSettingsModal();
-    return;
-  }
 
   const btn = $('#btn-analyze');
   const status = $('#analyze-status');
@@ -780,7 +770,6 @@ $('#btn-analyze').addEventListener('click', triggerAnalyze);
 
 function openSettingsModal() {
   $('#settings-modal').classList.remove('hidden');
-  $('#settings-api-key').value = QwenAI.getApiKey();
 }
 
 function closeSettingsModal() {
@@ -1059,11 +1048,6 @@ $('#grade-image').addEventListener('change', (e) => {
 $('#btn-submit-grade').addEventListener('click', async () => {
   if (!gradeImage) {
     alert('请先拍照或选择试卷图片');
-    return;
-  }
-  if (!QwenAI.hasApiKey()) {
-    alert('请先在设置中配置 DashScope API Key');
-    openSettingsModal();
     return;
   }
   if (paperQuestions.length === 0) {
