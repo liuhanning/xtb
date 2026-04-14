@@ -384,9 +384,15 @@
 
         if (gameState.diceAnimating) {
           cube.classList.add('rolling');
-          cube.style.transform = '';
+          // Only reset transform on the small cube (big cube is handled by rollDice)
+          if (cubeId === 'dice-cube') cube.style.transform = '';
         } else {
           cube.classList.remove('rolling');
+          // Set the small cube to show the current value
+          if (cubeId === 'dice-cube') {
+            const rotation = DICE_ROTATIONS[gameState.diceValue] || DICE_ROTATIONS[1];
+            cube.style.transform = `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`;
+          }
         }
       });
     },
