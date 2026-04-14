@@ -205,7 +205,7 @@ async def proxy_chat(request: Request):
             content={"error": {"message": "请求体过大（最大 10MB）"}},
         )
 
-    auth_header = request.headers.get("authorization", "")
+    auth_header = f"Bearer {os.environ['DASHSCOPE_API_KEY']}"
 
     def _call_dashscope():
         resp = requests_lib.post(

@@ -200,6 +200,28 @@
       <section id="view-stats" class="view hidden">
         <div id="stats-content"></div>
       </section>
+
+      <!-- Game View (错题闯关) -->
+      <section id="view-game" class="view hidden">
+        <div class="game-header-bar">
+          <div class="game-stat">
+            <span id="game-lives">❤️❤️❤️</span>
+          </div>
+          <div class="game-stat">
+            <span id="game-coins">💰 100</span>
+          </div>
+          <div class="game-stat">
+            <span id="game-progress">0/16</span>
+          </div>
+          <button id="btn-shop" class="btn-shop">🏪</button>
+        </div>
+        <div class="game-controls">
+          <span id="game-phase-label" class="game-phase-label"></span>
+          <span id="dice-display" class="dice-display">🎲</span>
+          <button id="btn-roll-dice" class="btn-roll hidden">掷骰子</button>
+        </div>
+        <div id="game-board-grid" class="game-board-grid"></div>
+      </section>
     </main>
 
     <!-- Settings Modal -->
@@ -210,12 +232,19 @@
           <button id="btn-close-settings" class="btn-close">&times;</button>
         </div>
         <div class="modal-body">
+          <p style="color: #64748b; margin-bottom: 16px;">AI 服务由服务端提供，无需配置 API Key。</p>
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
           <div class="form-group">
-            <label for="settings-api-key">DashScope API Key</label>
-            <input type="password" id="settings-api-key" placeholder="sk-...">
-            <p class="settings-hint">用于智能识别功能，调用通义千问Qwen-VL模型分析错题图片。API Key 仅存储在本地浏览器中。</p>
+            <label>数据管理</label>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <button id="btn-export" class="btn-secondary">导出数据</button>
+              <label class="btn-secondary" style="cursor: pointer; display: inline-block; margin: 0;">
+                导入数据
+                <input type="file" id="btn-import" accept=".json" style="display: none;">
+              </label>
+            </div>
+            <p class="settings-hint">导出为 JSON 文件备份，或从 JSON 文件导入恢复数据。</p>
           </div>
-          <button id="btn-save-settings" class="btn-primary">保存</button>
         </div>
       </div>
     </div>
@@ -249,6 +278,50 @@
       </div>
     </div>
 
+    <!-- Game Quiz Modal -->
+    <div id="game-quiz-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="quiz-title">答题</h3>
+          <button id="btn-quiz-close" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="quiz-question" class="quiz-question"></div>
+          <div id="quiz-options" class="quiz-options"></div>
+          <div id="quiz-result" class="quiz-result hidden"></div>
+          <button id="btn-quiz-next" class="btn-primary hidden">下一回合</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game End Modal -->
+    <div id="game-end-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>游戏结束</h3>
+          <button id="btn-game-end-close" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="game-end-stats" class="game-end-stats"></div>
+          <button id="btn-game-restart" class="btn-primary">再来一局</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Shop Modal -->
+    <div id="game-shop-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>🏪 道具商店</h3>
+          <button id="btn-shop-close" class="btn-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="shop-coins" id="shop-coins"></div>
+          <div class="shop-items" id="shop-items"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- FAB -->
     <button id="btn-add" class="fab">+</button>
 
@@ -262,6 +335,10 @@
         <span class="tab-icon">&#128220;</span>
         <span>组卷</span>
       </button>
+      <button class="tab-item" data-view="game">
+        <span class="tab-icon">&#127918;</span>
+        <span>闯关</span>
+      </button>
       <button class="tab-item" data-view="stats">
         <span class="tab-icon">&#128202;</span>
         <span>分析</span>
@@ -274,6 +351,66 @@
   <script src="./js/voice.js"></script>
   <script src="./js/qwen.js"></script>
   <script src="./js/app.js"></script>
+  <script src="./js/game.js"></script>
+  <script>
+    // Auto-seed test data if DB is empty
+    (async function seedTestData() {
+      await new Promise(r => setTimeout(r, 800));
+
+      // Check if we already have data
+      try {
+        const existing = await getAllQuestions({ showMastered: true });
+        if (existing.length > 0) {
+          console.log('[Seed] DB already has', existing.length, 'questions, skipping');
+          return;
+        }
+      } catch (e) {
+        console.log('[Seed] Cannot check existing data:', e.message);
+      }
+
+      const questions = [
+        { subject: 'math', kp: '分数加减法', q: '计算：1/3 + 2/5 = ?', wrong: '3/8', correct: '11/15' },
+        { subject: 'math', kp: '乘法口诀', q: '7 \u00d7 8 = ?', wrong: '54', correct: '56' },
+        { subject: 'math', kp: '几何面积', q: '一个长方形长6cm，宽4cm，面积是多少？', wrong: '20cm\u00b2', correct: '24cm\u00b2' },
+        { subject: 'math', kp: '应用题', q: '小明有12个苹果，分给3个朋友，每人分到几个？', wrong: '3个', correct: '4个' },
+        { subject: 'chinese', kp: '古诗默写', q: '默写\u300a静夜思\u300b：床前明月光，____。', wrong: '低头思故乡（错写为"抬头望明月"）', correct: '\u7591\u662f\u5730\u4e0a\u971c\u3002\u4e3e\u5934\u671b\u660e\u6708\uff0c\u4f4e\u5934\u601d\u6545\u4e61\u3002' },
+        { subject: 'chinese', kp: '成语填空', q: '画龙点____ 守株待____', wrong: '花、人', correct: '\u775b\u3001\u5154' },
+        { subject: 'chinese', kp: '\u62fc\u97f3', q: '\u7ed9\u201c\u5feb\u4e50\u201d\u6807\u6ce8\u62fc\u97f3', wrong: 'ku\u00e0i l\u00e8i', correct: 'ku\u00e0i l\u00e8' },
+        { subject: 'english', kp: '单词拼写', q: '写出\u201c\u52a8\u7269\u56ed\u201d\u7684\u82f1\u6587', wrong: 'zo', correct: 'zoo' },
+        { subject: 'english', kp: '语法选择', q: 'She ___ a student. (am/is/are)', wrong: 'are', correct: 'is' },
+        { subject: 'english', kp: '日常对话', q: '\u7528\u82f1\u8bed\u8bf4\u201c\u4f60\u597d\u5417\uff1f\u201d', wrong: 'How old are you?', correct: 'How are you?' },
+        { subject: 'math', kp: '分数加减法', q: '计算：5/6 - 1/4 = ?', wrong: '4/2', correct: '7/12' },
+        { subject: 'chinese', kp: '阅读理解', q: '\u201c\u6625\u7720\u4e0d\u89c9\u6653\u201d\u7684\u4e0b\u4e00\u53e5\u662f\u4ec0\u4e48\uff1f', wrong: '处处蚊子咬', correct: '处处闻啼鸟' },
+        { subject: 'english', kp: '单词拼写', q: '写出\u201c\u8001\u5e08\u201d\u7684\u82f1\u6587', wrong: 'teachar', correct: 'teacher' },
+        { subject: 'math', kp: '乘法口诀', q: '9 \u00d7 6 = ?', wrong: '56', correct: '54' },
+        { subject: 'chinese', kp: '古诗默写', q: '默写\u300a春晓\u300b：春眠不觉晓，____。', wrong: '处处蚊子咬', correct: '处处闻啼鸟' },
+      ];
+
+      const errorTypes = ['calculation', 'concept', 'careless', 'understand', 'knowledge', 'other'];
+
+      console.log('[Seed] Inserting', questions.length, 'questions...');
+      let count = 0;
+      for (const item of questions) {
+        try {
+          await addQuestion({
+            subject: item.subject,
+            knowledgePoint: item.kp,
+            errorType: errorTypes[Math.floor(Math.random() * errorTypes.length)],
+            question: item.q,
+            wrongAnswer: item.wrong,
+            correctAnswer: item.correct,
+            note: '',
+          });
+          count++;
+        } catch (e) {
+          console.warn('[Seed] Error inserting:', e.message);
+        }
+      }
+      console.log('[Seed] Done! Inserted', count, '/', questions.length, 'questions');
+      // Refresh list if on list view
+      if (typeof renderList === 'function') renderList();
+    })();
+  </script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js');

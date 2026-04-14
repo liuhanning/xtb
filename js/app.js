@@ -794,17 +794,6 @@ $('#settings-modal').addEventListener('click', (e) => {
   if (e.target === $('#settings-modal')) closeSettingsModal();
 });
 
-$('#btn-save-settings').addEventListener('click', () => {
-  const key = $('#settings-api-key').value.trim();
-  if (key) {
-    QwenAI.setApiKey(key);
-    alert('API Key 已保存');
-  } else {
-    localStorage.removeItem('dashscope_api_key');
-  }
-  closeSettingsModal();
-});
-
 // ==================== DATA IMPORT/EXPORT ====================
 
 $('#btn-export').addEventListener('click', async () => {

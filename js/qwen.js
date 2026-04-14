@@ -1,5 +1,5 @@
 (function () {
-  // Same-origin path, proxied by backend to avoid CORS
+  // 后端代理自动注入 API Key，前端无需传 Authorization
   const API_PATH = '/api/chat/completions';
   const MODEL = 'qwen3-vl-plus';
 
@@ -25,7 +25,6 @@
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
       img.onerror = () => {
-        // 压缩失败，返回原始图片
         resolve(imageSource.startsWith('data:') ? imageSource : `data:image/jpeg;base64,${imageSource}`);
       };
       img.src = imageSource;
@@ -95,66 +94,50 @@
 6. 题目要完整可作答`;
 
   /**
-   * 基于题目上下文向AI提问，获取讲解
+   * 通用请求函数，不传 Authorization（后端代理自动注入）
    */
+  async function callAI(body) {
+    const response = await fetch(API_PATH, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API请求失败: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content?.trim();
+    if (!text) throw new Error('模型返回内容为空');
+    return text;
+  }
+
+  function parseJSON(text) {
+    let jsonStr = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```\s*$/, '');
+    const results = JSON.parse(jsonStr);
+    return Array.isArray(results) ? results : [results];
+  }
+
   window.QwenAI = {
-    getApiKey() {
-      return localStorage.getItem('dashscope_api_key') || '';
-    },
-
-    setApiKey(key) {
-      localStorage.setItem('dashscope_api_key', key.trim());
-    },
-
-    hasApiKey() {
-      return this.getApiKey().length > 0;
-    },
-
     async analyzeImage(imageBase64) {
-      const apiKey = this.getApiKey();
-      if (!apiKey) throw new Error('未配置API Key');
-
-      // 二次压缩：缩小尺寸+降低质量，避免 API 超时
       const compressedBase64 = await compressImageForApi(imageBase64, 640, 0.6);
-
-      const response = await fetch(API_PATH, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                { type: 'image_url', image_url: { url: compressedBase64 } },
-                { type: 'text', text: ANALYZE_PROMPT },
-              ],
-            },
-          ],
-          temperature: 0.1,
-        }),
+      const text = await callAI({
+        model: MODEL,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: compressedBase64 } },
+              { type: 'text', text: ANALYZE_PROMPT },
+            ],
+          },
+        ],
+        temperature: 0.1,
       });
 
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error?.message || `API请求失败: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const text = data.choices?.[0]?.message?.content?.trim();
-
-      if (!text) throw new Error('模型返回内容为空');
-
-      // Parse JSON (may have markdown code fences)
-      let jsonStr = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```\s*$/, '');
-      const results = JSON.parse(jsonStr);
-
-      // Normalize: ensure it's always an array of objects
-      const items = Array.isArray(results) ? results : [results];
-
+      const items = parseJSON(text);
       return items.map(item => ({
         subject: item.subject || 'other',
         knowledgePoint: item.knowledgePoint || '',
@@ -166,10 +149,6 @@
     },
 
     async askQuestion(questionItem, userMessage, chatHistory) {
-      const apiKey = this.getApiKey();
-      if (!apiKey) throw new Error('未配置API Key');
-
-      // Build system context from question item
       const subjectLabel = { math: '数学', chinese: '语文', english: '英语', other: '其他' }[questionItem.subject] || '其他';
       const errorTypeLabel = { calculation: '计算错误', concept: '概念不清', careless: '粗心大意', understand: '理解偏差', knowledge: '知识盲点', other: '其他' }[questionItem.errorType] || '其他';
 
@@ -183,85 +162,39 @@
 
 请用通俗易懂的方式讲解，帮助孩子理解。回答要适合小学生，多用生活化的例子。不要直接给出答案，引导孩子自己思考。`;
 
-      // Build messages with chat history
       const messages = [{ role: 'system', content: systemPrompt }];
       if (chatHistory && chatHistory.length > 0) {
-        messages.push(...chatHistory.slice(-10)); // Keep last 10 messages
+        messages.push(...chatHistory.slice(-10));
       }
       messages.push({ role: 'user', content: [{ type: 'text', text: userMessage }] });
 
-      const response = await fetch(API_PATH, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages,
-          temperature: 0.7,
-          max_tokens: 1024,
-        }),
+      return callAI({
+        model: MODEL,
+        messages,
+        temperature: 0.7,
+        max_tokens: 1024,
       });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error?.message || `API请求失败: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const text = data.choices?.[0]?.message?.content?.trim();
-      if (!text) throw new Error('模型返回内容为空');
-      return text;
     },
 
     async gradePaper(imageBase64) {
-      const apiKey = this.getApiKey();
-      if (!apiKey) throw new Error('未配置API Key');
-
       const compressedBase64 = await compressImageForApi(imageBase64, 800, 0.7);
-
-      const response = await fetch(API_PATH, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                { type: 'image_url', image_url: { url: compressedBase64 } },
-                { type: 'text', text: GRADE_PROMPT },
-              ],
-            },
-          ],
-          temperature: 0.1,
-        }),
+      const text = await callAI({
+        model: MODEL,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: compressedBase64 } },
+              { type: 'text', text: GRADE_PROMPT },
+            ],
+          },
+        ],
+        temperature: 0.1,
       });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error?.message || `API请求失败: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const text = data.choices?.[0]?.message?.content?.trim();
-
-      if (!text) throw new Error('模型返回内容为空');
-
-      let jsonStr = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```\s*$/, '');
-      const results = JSON.parse(jsonStr);
-
-      return Array.isArray(results) ? results : [results];
+      return parseJSON(text);
     },
 
     async generateSimilarQuestions(questionItem) {
-      const apiKey = this.getApiKey();
-      if (!apiKey) throw new Error('未配置API Key');
-
       const prompt = SIMILAR_PROMPT
         .replace('{SUBJECT}', questionItem.subject || 'math')
         .replace('{KNOWLEDGE_POINT}', questionItem.knowledgePoint || '未指定')
@@ -270,38 +203,13 @@
         .replace('{ERROR_TYPE}', questionItem.errorType || 'other')
         .replace('{CORRECT_ANSWER}', questionItem.correctAnswer || '未提供');
 
-      const response = await fetch(API_PATH, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [
-            {
-              role: 'user',
-              content: prompt,
-            },
-          ],
-          temperature: 0.7,
-        }),
+      const text = await callAI({
+        model: MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
       });
 
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error?.message || `API请求失败: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const text = data.choices?.[0]?.message?.content?.trim();
-
-      if (!text) throw new Error('模型返回内容为空');
-
-      let jsonStr = text.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```\s*$/, '');
-      const results = JSON.parse(jsonStr);
-
-      return (Array.isArray(results) ? results : [results]).map(item => ({
+      return parseJSON(text).map(item => ({
         question: item.question || '',
         answer: item.answer || '',
         hint: item.hint || '',
