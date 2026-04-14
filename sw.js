@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cuotiben-v11';
+const CACHE_NAME = 'cuotiben-v13';
 const ASSETS = [
   './',
   './index.html',

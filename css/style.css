@@ -1683,10 +1683,10 @@ body {
 /* 6 faces of cube */
 .dice-front  { transform: translateZ(23px); }
 .dice-back   { transform: rotateY(180deg) translateZ(23px); }
-.dice-right  { transform: rotateY(90deg) translateZ(23px); }
-.dice-left   { transform: rotateY(-90deg) translateZ(23px); }
-.dice-top    { transform: rotateX(90deg) translateZ(23px); }
-.dice-bottom { transform: rotateX(-90deg) translateZ(23px); }
+.dice-right  { transform: rotateY(-90deg) translateZ(23px); }
+.dice-left   { transform: rotateY(90deg) translateZ(23px); }
+.dice-top    { transform: rotateX(-90deg) translateZ(23px); }
+.dice-bottom { transform: rotateX(90deg) translateZ(23px); }
 
 .dice-dot {
   display: none;
@@ -1740,10 +1740,10 @@ body {
 
 .dice-cube-big .dice-front  { transform: translateZ(70px); }
 .dice-cube-big .dice-back   { transform: rotateY(180deg) translateZ(70px); }
-.dice-cube-big .dice-right  { transform: rotateY(90deg) translateZ(70px); }
-.dice-cube-big .dice-left   { transform: rotateY(-90deg) translateZ(70px); }
-.dice-cube-big .dice-top    { transform: rotateX(90deg) translateZ(70px); }
-.dice-cube-big .dice-bottom { transform: rotateX(-90deg) translateZ(70px); }
+.dice-cube-big .dice-right  { transform: rotateY(-90deg) translateZ(70px); }
+.dice-cube-big .dice-left   { transform: rotateY(90deg) translateZ(70px); }
+.dice-cube-big .dice-top    { transform: rotateX(-90deg) translateZ(70px); }
+.dice-cube-big .dice-bottom { transform: rotateX(90deg) translateZ(70px); }
 
 @keyframes dice-pop-in {
   0%   { transform: scale(0.3) rotateX(0deg) rotateY(0deg); opacity: 0; }

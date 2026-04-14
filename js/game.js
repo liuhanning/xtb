@@ -359,11 +359,6 @@
     },
 
     renderDiceFace() {
-      const cube = document.getElementById('dice-cube');
-      if (!cube || !gameState) return;
-
-      // Face dot patterns (standard dice: opposite faces sum to 7)
-      // front=1, back=6, right=3, left=4, top=2, bottom=5
       const faceDots = {
         'dice-front':  [5],           // 1
         'dice-back':   [1,3,4,6,7,9], // 6
@@ -373,24 +368,27 @@
         'dice-bottom': [1,3,5,7,9],    // 5
       };
 
-      cube.querySelectorAll('.dice-face').forEach(faceEl => {
-        const faceClass = faceEl.classList[1]; // dice-front, dice-back, etc.
-        const dots = faceDots[faceClass] || [];
-        faceEl.querySelectorAll('.dice-dot').forEach(dot => {
-          const pos = parseInt(dot.dataset.pos);
-          dot.classList.toggle('visible', dots.includes(pos));
-        });
-      });
+      // Update both small and big dice cubes
+      ['dice-cube', 'dice-overlay-cube'].forEach(cubeId => {
+        const cube = document.getElementById(cubeId);
+        if (!cube) return;
 
-      if (gameState.diceAnimating) {
-        cube.classList.add('rolling');
-        cube.style.transform = '';
-      } else {
-        cube.classList.remove('rolling');
-        // Rotate cube to show the target face
-        const rotation = DICE_ROTATIONS[gameState.diceValue] || DICE_ROTATIONS[1];
-        cube.style.transform = `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`;
-      }
+        cube.querySelectorAll('.dice-face').forEach(faceEl => {
+          const faceClass = faceEl.classList[1];
+          const dots = faceDots[faceClass] || [];
+          faceEl.querySelectorAll('.dice-dot').forEach(dot => {
+            const pos = parseInt(dot.dataset.pos);
+            dot.classList.toggle('visible', dots.includes(pos));
+          });
+        });
+
+        if (gameState.diceAnimating) {
+          cube.classList.add('rolling');
+          cube.style.transform = '';
+        } else {
+          cube.classList.remove('rolling');
+        }
+      });
     },
 
     renderPathLines() {
