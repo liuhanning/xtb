@@ -447,9 +447,7 @@
 
         html += `<div class="game-tile ${subjectClass} ${isPlayer ? 'player-here' : ''} ${isAnswered ? 'answered' : ''}"
                       data-index="${index}">
-          <div class="tile-badge">${index + 1}</div>
           <div class="tile-icon">${isAnswered ? `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><polygon points="24,4 28,18 42,18 30,27 34,42 24,33 14,42 18,27 6,18 20,18" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/><circle cx="24" cy="22" r="5" fill="#fef3c7"/></svg>` : tileIcon}</div>
-          <div class="tile-animal">${animal.emoji}</div>
           ${isPlayer ? `<div class="player-piece">${FOX_SVG}</div>` : ''}
           ${isAnswered ? '<div class="answered-badge">\u2713</div>' : ''}
         </div>`;
