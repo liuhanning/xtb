@@ -118,7 +118,7 @@ async function renderList() {
   list.innerHTML = items
     .map(
       (item) => `
-    <article class="question-card" data-id="${item.id}">
+    <article class="question-card subject-${item.subject}" data-id="${item.id}">
       <div class="card-content">
         <div class="card-header">
           <span class="subject-tag subject-${item.subject}">${SUBJECT_LABELS[item.subject]}</span>

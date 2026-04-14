@@ -118,12 +118,11 @@ body {
   transition: all 0.2s;
 }
 
-.filter-btn.active {
-  background: linear-gradient(135deg, #f97316, #fb923c);
-  color: white;
-  border-color: #f97316;
-  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
-}
+.filter-btn.active[data-subject="all"] { background: linear-gradient(135deg, #f97316, #fbbf24); border-color: #f97316; }
+.filter-btn.active[data-subject="math"] { background: linear-gradient(135deg, #f97316, #fb923c); border-color: #f97316; color: white; }
+.filter-btn.active[data-subject="chinese"] { background: linear-gradient(135deg, #ec4899, #f472b6); border-color: #ec4899; color: white; }
+.filter-btn.active[data-subject="english"] { background: linear-gradient(135deg, #10b981, #34d399); border-color: #10b981; color: white; }
+.filter-btn.active[data-subject="other"] { background: linear-gradient(135deg, #a855f7, #c084fc); border-color: #a855f7; color: white; }
 
 /* Toggle */
 .toggle-bar {
