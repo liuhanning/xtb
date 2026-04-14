@@ -337,15 +337,96 @@
   };
 
   // ==================== GAME TILE EMOJIS ====================
+  // ==================== GAME TILE SVG ICONS ====================
+  // 10 cartoon game elements — inline SVG, colorful, kid-friendly
+  const GAME_ICONS = [
+    // 0: Treasure chest
+    `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <rect x="8" y="20" width="32" height="22" rx="4" fill="#d97706"/>
+      <rect x="8" y="16" width="32" height="10" rx="4" fill="#f59e0b"/>
+      <line x1="8" y1="26" x2="40" y2="26" stroke="#92400e" stroke-width="2"/>
+      <rect x="20" y="22" width="8" height="8" rx="2" fill="#fbbf24"/>
+      <circle cx="24" cy="26" r="2" fill="#92400e"/>
+      <rect x="10" y="28" width="28" height="12" rx="2" fill="#b45309" opacity="0.3"/>
+    </svg>`,
+    // 1: Star medal
+    `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="24,4 28,18 42,18 30,27 34,42 24,33 14,42 18,27 6,18 20,18" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
+      <circle cx="24" cy="22" r="5" fill="#fef3c7"/>
+    </svg>`,
+    // 2: Gold coin
+    `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="18" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+      <circle cx="24" cy="24" r="14" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="24" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#d97706">¥</text>
+    </svg>`,
+    // 3: Crown
+    `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="6,32 10,14 16,24 24,8 32,24 38,14 42,32" fill="#f59e0b" stroke="#d97706" stroke-width="1.5"/>
+      <rect x="6" y="32" width="36" height="6" rx="2" fill="#d97706"/>
+      <circle cx="16" cy="24" r="2" fill="#ef4444"/>
+      <circle cx="24" cy="8" r="2" fill="#3b82f6"/>
+      <circle cx="32" cy="24" r="2" fill="#22c55e"/>
+    </svg>`,
+    // 4: Diamond gem
+    `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="24,6 42,20 24,42 6,20" fill="#818cf8" stroke="#6366f1" stroke-width="1.5"/>
+      <polygon points="24,6 30,20 24,42 18,20" fill="#a5b4fc" opacity="0.6"/>
+      <line x1="6" y1="20" x2="42" y2="20" stroke="#6366f1" stroke-width="1"/>
+    </svg>`,
+    // 5: Target bullseye
+    `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="18" fill="#ef4444"/>
+      <circle cx="24" cy="24" r="13" fill="white"/>
+      <circle cx="24" cy="24" r="8" fill="#ef4444"/>
+      <circle cx="24" cy="24" r="4" fill="#fbbf24"/>
+    </svg>`,
+    // 6: Open book
+    `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6,8 C6,8 16,4 24,10 C32,4 42,8 42,8 L42,40 C42,40 32,36 24,42 C16,36 6,40 6,40 Z" fill="#3b82f6"/>
+      <path d="M8,10 C8,10 16,7 24,12 L24,40 C16,34 8,38 8,38 Z" fill="#60a5fa"/>
+      <path d="M40,10 C40,10 32,7 24,12 L24,40 C32,34 40,38 40,38 Z" fill="#93c5fd"/>
+      <line x1="12" y1="18" x2="20" y2="16" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="12" y1="24" x2="20" y2="22" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="28" y1="16" x2="36" y2="18" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="28" y1="22" x2="36" y2="24" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`,
+    // 7: Pencil
+    `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="10,38 24,10 38,24 24,38" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+      <polygon points="10,38 16,32 20,36 14,42" fill="#fca5a5"/>
+      <polygon points="18,30 24,18 28,22 22,34" fill="#fde68a"/>
+      <rect x="26" y="8" width="10" height="8" rx="2" fill="#f472b6" transform="rotate(45, 31, 12)"/>
+    </svg>`,
+    // 8: Lightbulb
+    `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="18" r="12" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>
+      <rect x="18" y="28" width="12" height="8" rx="2" fill="#d97706"/>
+      <rect x="20" y="34" width="8" height="4" rx="1" fill="#92400e"/>
+      <line x1="24" y1="6" x2="24" y2="2" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+      <line x1="36" y1="18" x2="40" y2="18" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+      <line x1="12" y1="18" x2="8" y2="18" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+      <line x1="32" y1="10" x2="35" y2="7" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+      <line x1="16" y1="10" x2="13" y2="7" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+    </svg>`,
+    // 9: Rocket
+    `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="24" cy="20" rx="8" ry="16" fill="#ef4444"/>
+      <ellipse cx="24" cy="20" rx="5" ry="16" fill="#f87171"/>
+      <circle cx="24" cy="18" r="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
+      <polygon points="16,32 10,42 18,36" fill="#f59e0b"/>
+      <polygon points="32,32 38,42 30,36" fill="#f59e0b"/>
+      <ellipse cx="24" cy="38" rx="6" ry="8" fill="#fbbf24" opacity="0.8"/>
+      <ellipse cx="24" cy="42" rx="3" ry="5" fill="#f97316"/>
+    </svg>`,
+  ];
+
   const SUBJECT_ANIMALS = {
     math: { emoji: '\ud83e\udd8a', name: '狐狸' },
     chinese: { emoji: '\ud83d\udc30', name: '兔子' },
     english: { emoji: '\ud83d\udc31', name: '猫咪' },
     other: { emoji: '\ud83d\udc3b', name: '小熊' },
   };
-
-  // Question type → emoji mapping
-  const TYPE_EMOJIS = ['\u270f\ufe0f', '\ud83d\udcdd', '\ud83d\udcd6', '\ud83c\udfaf', '\ud83d\udca1', '\ud83e\udde9', '\u2b50', '\ud83c\udf1f', '\ud83c\udfa8', '\ud83c\udfb5'];
 
   // ==================== RENDERING ====================
   window.GameRenderer = {
@@ -361,12 +442,13 @@
         const isAnswered = answered.includes(index);
         const subjectClass = `subject-${tile.subject}`;
         const animal = SUBJECT_ANIMALS[tile.subject] || SUBJECT_ANIMALS.other;
-        const tileEmoji = TYPE_EMOJIS[index % TYPE_EMOJIS.length];
+        const iconIdx = index % GAME_ICONS.length;
+        const tileIcon = GAME_ICONS[iconIdx];
 
         html += `<div class="game-tile ${subjectClass} ${isPlayer ? 'player-here' : ''} ${isAnswered ? 'answered' : ''}"
                       data-index="${index}">
           <div class="tile-badge">${index + 1}</div>
-          <div class="tile-emoji">${isAnswered ? '\u2b50' : tileEmoji}</div>
+          <div class="tile-icon">${isAnswered ? `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><polygon points="24,4 28,18 42,18 30,27 34,42 24,33 14,42 18,27 6,18 20,18" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/><circle cx="24" cy="22" r="5" fill="#fef3c7"/></svg>` : tileIcon}</div>
           <div class="tile-animal">${animal.emoji}</div>
           ${isPlayer ? `<div class="player-piece">${FOX_SVG}</div>` : ''}
           ${isAnswered ? '<div class="answered-badge">\u2713</div>' : ''}
