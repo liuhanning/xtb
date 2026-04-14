@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cuotiben-v1';
+const CACHE_NAME = 'cuotiben-v9';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const ASSETS = [
   './js/voice.js',
   './js/camera.js',
   './js/qwen.js',
+  './js/game.js',
   './manifest.json',
 ];
 
