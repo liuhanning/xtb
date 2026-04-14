@@ -452,12 +452,14 @@
     const optionsEl = document.getElementById('quiz-options');
     const resultEl = document.getElementById('quiz-result');
     const nextBtn = document.getElementById('btn-quiz-next');
+    const skipBtn = document.getElementById('btn-quiz-skip');
 
     title.textContent = `第 ${index + 1} 格 — ${tile.knowledgePoint}`;
     questionEl.textContent = tile.question || '请根据知识点作答';
     optionsEl.innerHTML = '';
     resultEl.classList.add('hidden');
     nextBtn.classList.add('hidden');
+    if (skipBtn) skipBtn.classList.remove('hidden');
 
     // Generate 4 options from DB + AI
     generateQuizOptions(tile).then(options => {
@@ -495,12 +497,15 @@
   function showQuizResult(isCorrect) {
     const resultEl = document.getElementById('quiz-result');
     const nextBtn = document.getElementById('btn-quiz-next');
+    const skipBtn = document.getElementById('btn-quiz-skip');
 
     resultEl.className = `quiz-result ${isCorrect ? 'correct' : 'wrong'}`;
     resultEl.textContent = isCorrect
-      ? `\u2713 回答正确！+${QUIZ_COIN_GAIN} 金币`
-      : `\u2717 回答错误！-${QUIZ_LIFE_LOSS} 生命`;
+      ? `✓ 回答正确！+${QUIZ_COIN_GAIN} 金币`
+      : `✗ 回答错误！-${QUIZ_LIFE_LOSS} 生命`;
     resultEl.classList.remove('hidden');
+
+    if (skipBtn) skipBtn.classList.add('hidden');
 
     if (gameState.phase === 'END') {
       nextBtn.textContent = '查看结果';
@@ -768,8 +773,34 @@
     GameEngine.nextTurn();
   });
 
+  document.getElementById('btn-quiz-skip').addEventListener('click', () => {
+    // Skip: mark as wrong, no coin gain
+    if (gameState && gameState.phase === 'QUIZ') {
+      hideQuizModal();
+      gameState.quizResult = 'wrong';
+      gameState.lives -= QUIZ_LIFE_LOSS;
+      gameState.wrongCount++;
+      if (!gameState.answered.includes(gameState.quizTarget)) {
+        gameState.answered.push(gameState.quizTarget);
+      }
+      if (gameState.lives <= 0 || gameState.answered.length >= gameState.board.length) {
+        gameState.phase = 'END';
+      } else {
+        gameState.phase = 'RESULT';
+      }
+      showQuizResult(false);
+    }
+  });
+
   document.getElementById('btn-quiz-close').addEventListener('click', () => {
     hideQuizModal();
+    // If quiz was unanswered, reset to ROLL so game doesn't get stuck
+    if (gameState && (gameState.phase === 'QUIZ' || gameState.phase === 'RESULT')) {
+      gameState.phase = 'ROLL';
+      gameState.currentTurn++;
+      GameRenderer.renderBoard();
+      updatePhaseUI();
+    }
   });
 
   document.getElementById('btn-game-end-close').addEventListener('click', () => {
